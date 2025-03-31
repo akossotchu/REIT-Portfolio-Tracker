@@ -99,7 +99,8 @@ See the [requirements.txt](https://github.com/akossotchu/REIT-Portfolio-Tracker/
 <p align="center">
   <img src="https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/pdf_report.png" alt="PDF Report">
 </p>
-<p align="center">[Download Sample Report (PDF)](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/sample_report.pdf)
+<p align="center">
+  <a href="https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/sample_report.pdf">Download Sample Report (PDF)</a>
 </p>
 
 The REIT Portfolio Tracker can generate comprehensive PDF reports that provide a detailed analysis of your investment portfolio. These professional-quality reports include:
