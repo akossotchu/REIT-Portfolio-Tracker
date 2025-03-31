@@ -74,7 +74,7 @@ See the [requirements.txt](https://github.com/akossotchu/REIT-Portfolio-Tracker/
 
 ![Transaction History](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/transaction_history.png)
 
-### Net Asset Value Analysis*
+### Net Asset Value Analysis
 ![Portfolio Value Over Time](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/nav.png)
 
 ### Split / Reverse Split
