@@ -140,7 +140,7 @@ Need more help? [Open an issue](https://github.com/akossotchu/REIT-Portfolio-Tra
 
 <div align="center">
 
-![Bitcoin](https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/64px-Bitcoin.png)
+![Bitcoin](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/Bitcoin.svg.png)
 
 If you find this application useful for managing your REIT investments, please consider making a Bitcoin donation to support continued development.
 
