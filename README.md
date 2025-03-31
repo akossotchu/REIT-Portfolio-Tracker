@@ -51,6 +51,7 @@ The application relies on several Python libraries:
 ```
 pip install -r requirements.txt
 ```
+See the [requirements.txt](https://github.com/akossotchu/REIT-Portfolio-Tracker/blob/main/requirements.txt) file for all dependencies.
 
 ### Building from Source
 
@@ -62,7 +63,7 @@ For developers who want to build the application from source:
 
 ### Running the Application
 
-The application is initialized through the `main.py` file, which serves as the entry point:
+The application is initialized through the [`main.py`](https://github.com/akossotchu/REIT-Portfolio-Tracker/blob/main/main.py) file, which serves as the entry point:
 
 ```
 python main.py
@@ -134,16 +135,16 @@ To set up a development environment:
 
 ## Project Structure
 
-- **main.py**: Entry point for the application
-- **reit_portfolio_app.py**: Main application file containing the core UI and program logic
-- **theme.py**: Contains theme constants and styling information
-- **split_dialog.py**: Dialog for handling stock splits
-- **nav.py**: Implementation of NAV analysis features
-- **donate_dialog.py**: Bitcoin donation dialog
-- **transaction_history.py**: Transaction history view implementation
-- **data_visualization.py**: Portfolio analytics visualization
-- **sector_allocation.py**: Sector allocation charts and analytics
-- **report_generator.py**: PDF report generation functionality
+- [**main.py**](https://github.com/akossotchu/REIT-Portfolio-Tracker/blob/main/main.py): Entry point for the application
+- [**reit_portfolio_app.py**](https://github.com/akossotchu/REIT-Portfolio-Tracker/blob/main/reit_portfolio_app.py): Main application file containing the core UI and program logic
+- [**theme.py**](https://github.com/akossotchu/REIT-Portfolio-Tracker/blob/main/theme.py): Contains theme constants and styling information
+- [**split_dialog.py**](https://github.com/akossotchu/REIT-Portfolio-Tracker/blob/main/split_dialog.py): Dialog for handling stock splits
+- [**nav.py**](https://github.com/akossotchu/REIT-Portfolio-Tracker/blob/main/nav.py): Implementation of NAV analysis features
+- [**donate_dialog.py**](https://github.com/akossotchu/REIT-Portfolio-Tracker/blob/main/donate_dialog.py): Bitcoin donation dialog
+- [**transaction_history.py**](https://github.com/akossotchu/REIT-Portfolio-Tracker/blob/main/transaction_history.py): Transaction history view implementation
+- [**data_visualization.py**](https://github.com/akossotchu/REIT-Portfolio-Tracker/blob/main/data_visualization.py): Portfolio analytics visualization
+- [**sector_allocation.py**](https://github.com/akossotchu/REIT-Portfolio-Tracker/blob/main/sector_allocation.py): Sector allocation charts and analytics
+- [**report_generator.py**](https://github.com/akossotchu/REIT-Portfolio-Tracker/blob/main/report_generator.py): PDF report generation functionality
 
 ## Customization
 
@@ -180,7 +181,7 @@ Users can customize various aspects of the application:
 ### Getting Help
 
 If you need assistance beyond what's covered in this documentation, you can:
-- Open an issue on GitHub
+- Open an [issue on GitHub](https://github.com/akossotchu/REIT-Portfolio-Tracker/issues)
 - Contact the maintainers directly
 - Check the Wiki for additional documentation
 
@@ -195,3 +196,7 @@ If you need assistance beyond what's covered in this documentation, you can:
 The REIT Portfolio Tracker is designed to be a helpful tool for investors, but remember that all investment decisions should be based on thorough research and possibly consultation with financial professionals. The application is continually evolving, and your feedback helps make it better for everyone.
 
 Thank you for using and supporting REIT Portfolio Tracker!
+
+---
+
+[View on GitHub](https://github.com/akossotchu/REIT-Portfolio-Tracker)
