@@ -1,17 +1,5 @@
 # REIT Portfolio Tracker
 
-<div align="center">
-
-![Bitcoin](https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/128px-Bitcoin.svg.png)
-
-**Support this project with Bitcoin: bc1qxqdxgf7ncc4ekz8ldq5cc5gukpykm6hfhjad0l**
-
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=bc1qxqdxgf7ncc4ekz8ldq5cc5gukpykm6hfhjad0l" alt="Bitcoin Donation QR Code">
-
-*Your donations help maintain and enhance this free, open-source tool for REIT investors*
-
-</div>
-
 ## Overview
 
 REIT Portfolio Tracker is a comprehensive desktop application built with Python and PyQt5, designed to help investors manage and analyze their Real Estate Investment Trust (REIT) portfolios. The application provides real-time data tracking, performance analytics, and customizable reporting features to facilitate informed investment decisions.
@@ -93,22 +81,16 @@ pyinstaller --name="REIT_Portfolio_Tracker" --windowed --icon=icon.ico --add-dat
 
 <div align="center">
 
-### 💎 Please Consider Donating 💎
+![Bitcoin](https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/64px-Bitcoin.svg.png)
 
 If you find this application useful for managing your REIT investments, please consider making a Bitcoin donation to support continued development and maintenance.
-
-**Why donate?**
-- Maintain regular updates with new features
-- Support ongoing bug fixes and improvements
-- Enable additional data source integrations
-- Fund server costs for potential future API implementations
 
 **Bitcoin Address:**  
 **bc1qxqdxgf7ncc4ekz8ldq5cc5gukpykm6hfhjad0l**
 
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=bc1qxqdxgf7ncc4ekz8ldq5cc5gukpykm6hfhjad0l" alt="Bitcoin Donation QR Code">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=bc1qxqdxgf7ncc4ekz8ldq5cc5gukpykm6hfhjad0l" alt="Bitcoin Donation QR Code">
 
-*Every donation, no matter how small, is greatly appreciated and motivates continued development!*
+*Your support helps maintain and enhance this tool for REIT investors*
 
 </div>
 
@@ -212,10 +194,4 @@ If you need assistance beyond what's covered in this documentation, you can:
 
 The REIT Portfolio Tracker is designed to be a helpful tool for investors, but remember that all investment decisions should be based on thorough research and possibly consultation with financial professionals. The application is continually evolving, and your feedback helps make it better for everyone.
 
-<div align="center">
-<h3>🙏 Thank You For Your Support! 🙏</h3>
-
-<p><i>If you've found this tool valuable, your Bitcoin donation helps ensure its continued development.</i></p>
-
-<p><b>Address: bc1qxqdxgf7ncc4ekz8ldq5cc5gukpykm6hfhjad0l</b></p>
-</div>
+Thank you for using and supporting REIT Portfolio Tracker!
