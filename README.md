@@ -3,8 +3,11 @@
 ![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python Version](https://img.shields.io/badge/python-3.7%2B-brightgreen)
 ![REIT Tool](https://img.shields.io/badge/investment-US%20REITs-orange)
+![AI Assisted](https://img.shields.io/badge/AI%20Assisted-Development-purple)
 
 **Track, analyze and optimize your US Real Estate Investment Trust (REIT) portfolio with this comprehensive desktop application.**
+
+> ⓘ **AI Development Note**: This application was developed with the assistance of artificial intelligence tools to enhance code quality, optimize algorithms, and improve user experience.
 
 ## 🏢 REIT Portfolio Management Made Easy
 
@@ -88,6 +91,14 @@ See the [requirements.txt](https://github.com/akossotchu/REIT-Portfolio-Tracker/
 - **Consensus NAV Values**: Entered manually using data from sources like Seeking Alpha's [REIT reports](https://seekingalpha.com/article/4769493-the-state-of-reits-march-2025-edition)
 - **Quality Scores**: Fetched from alreits.com
 
+### AI-Assisted Development
+
+This application incorporates several AI-assisted components:
+- **Intelligent sector classification**: Automated REIT categorization using natural language processing
+- **Optimized visualization algorithms**: Data presentation enhanced through machine learning techniques
+- **Code quality improvements**: Structure and performance optimized with AI assistance
+- **UI/UX enhancements**: Interface design refined with AI-driven recommendations
+
 ### Special Features
 
 - **FIFO Accounting**: Calculates average cost basis and profit/loss using First-In-First-Out method
@@ -143,6 +154,7 @@ pyinstaller --name="REIT_Portfolio_Tracker" --windowed --icon=icon.ico --add-dat
 - Enhanced visualization and analytics
 - Mobile companion app
 - Cloud synchronization
+- Further AI integration for predictive analytics and automated portfolio optimization
 
 ## ❓ Troubleshooting
 
@@ -187,7 +199,7 @@ This project is open source and available under the MIT License.
 
 ### Related Keywords
 
-US REIT tracking, REIT portfolio manager, dividend yield monitor, REIT investment tool, real estate investment trust software, REIT analysis application, dividend growth tracker, NAV premium discount calculator, REIT portfolio tracker, Python REIT app
+US REIT tracking, REIT portfolio manager, dividend yield monitor, REIT investment tool, real estate investment trust software, REIT analysis application, dividend growth tracker, NAV premium discount calculator, REIT portfolio tracker, Python REIT app, AI-assisted investment tools
 
 ---
 
