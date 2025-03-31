@@ -102,7 +102,7 @@ Create a standalone executable:
 
 ```
 pip install pyinstaller
-pyinstaller --name="REIT_Portfolio_Tracker" --windowed --icon=icon.ico --add-data="theme.py;." --add-data="split_dialog.py;." --add-data="nav.py;." --add-data="donate_dialog.py;." --add-data="transaction_history.py;." --add-data="data_visualization.py;." --add-data="sector_allocation.py;." --add-data="report_generator.py;." main.py
+pyinstaller --name="REIT Portfolio Tracker" --windowed --onefile --icon=icon.ico --hidden-import=yfinance --hidden-import=pandas --hidden-import=numpy --hidden-import=matplotlib --hidden-import=scipy main.py
 ```
 
 ### Project Structure
