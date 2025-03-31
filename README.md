@@ -76,7 +76,6 @@ See the [requirements.txt](https://github.com/akossotchu/REIT-Portfolio-Tracker/
 
 ### Net Asset Value Analysis*
 ![Portfolio Value Over Time](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/nav.png)
-*Consensus NAV inputed manually
 
 ### Split / Reverse Split
 ![Portfolio Value Over Time](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/split.png)
