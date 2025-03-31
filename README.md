@@ -76,6 +76,7 @@ See the [requirements.txt](https://github.com/akossotchu/REIT-Portfolio-Tracker/
 
 ### Net Asset Value Analysis*
 ![Portfolio Value Over Time](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/nav.png)
+*Consensus NAV inputed manually
 
 ### Split / Reverse Split
 ![Portfolio Value Over Time](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/split.png)
@@ -102,7 +103,7 @@ Create a standalone executable:
 
 ```
 pip install pyinstaller
-pyinstaller --name="REIT Portfolio Tracker" --windowed --onefile --icon=icon.ico --hidden-import=yfinance --hidden-import=pandas --hidden-import=numpy --hidden-import=matplotlib --hidden-import=scipy main.py
+pyinstaller --name="REIT_Portfolio_Tracker" --windowed --icon=icon.ico --add-data="theme.py;." --add-data="split_dialog.py;." --add-data="nav.py;." --add-data="donate_dialog.py;." --add-data="transaction_history.py;." --add-data="data_visualization.py;." --add-data="sector_allocation.py;." --add-data="report_generator.py;." main.py
 ```
 
 ### Project Structure
@@ -138,18 +139,24 @@ Need more help? [Open an issue](https://github.com/akossotchu/REIT-Portfolio-Tra
 
 ## 💎 Support This Project
 
-<div align="center">
-
-![Bitcoin](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/Bitcoin.svg.png)
-
 If you find this application useful for managing your REIT investments, please consider making a Bitcoin donation to support continued development.
 
-**Bitcoin Address:**  
-**bc1qxqdxgf7ncc4ekz8ldq5cc5gukpykm6hfhjad0l**
+<p align="center">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/64px-Bitcoin.svg.png" alt="Bitcoin Logo">
+</p>
 
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=bc1qxqdxgf7ncc4ekz8ldq5cc5gukpykm6hfhjad0l" alt="Bitcoin Donation QR Code">
+<p align="center">
+  <strong>Bitcoin Address:</strong><br>
+  <code>bc1qxqdxgf7ncc4ekz8ldq5cc5gukpykm6hfhjad0l</code>
+</p>
 
-</div>
+<p align="center">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=bc1qxqdxgf7ncc4ekz8ldq5cc5gukpykm6hfhjad0l" alt="Bitcoin Donation QR Code">
+</p>
+
+<p align="center">
+  <em>Your support helps maintain and enhance this tool for all REIT investors</em>
+</p>
 
 ## ⚠️ Disclaimer
 
