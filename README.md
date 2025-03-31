@@ -10,7 +10,7 @@
 
 REIT Portfolio Tracker is a powerful Python desktop application that helps investors manage their US REIT investments. The application offers real-time data tracking, performance analytics, dividend yield monitoring, and premium/discount to NAV analysis to support informed investment decisions.
 
-![REIT Portfolio Tracker Screenshot](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/main/screenshot.png)
+![REIT Portfolio Tracker Screenshot](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/main/screenshot.png)
 
 ### Why REIT Portfolio Tracker?
 
