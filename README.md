@@ -94,7 +94,7 @@ See the [requirements.txt](https://github.com/akossotchu/REIT-Portfolio-Tracker/
 - **Stock Split Handling**: Properly adjusts holdings for stock splits and reverse splits
 - **After-tax Income for International Investors**: Calculates estimated monthly income with tax adjustments (default 30% for Brazilian investors, customizable)
 
-### PDF Report Generation
+## ![PDF Report](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/pdf_report.png) PDF Report Generation
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/pdf_report.png" alt="PDF Report">
