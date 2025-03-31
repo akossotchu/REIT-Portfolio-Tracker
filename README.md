@@ -10,7 +10,7 @@
 
 REIT Portfolio Tracker is a powerful Python desktop application that helps investors manage their US REIT investments. The application offers real-time data tracking, performance analytics, dividend yield monitoring, and premium/discount to NAV analysis to support informed investment decisions.
 
-![REIT Portfolio Tracker Screenshot](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/main/screenshot.png)
+![REIT Portfolio Tracker Screenshot](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/screenshot.png)
 
 ### Why REIT Portfolio Tracker?
 
@@ -60,14 +60,26 @@ See the [requirements.txt](https://github.com/akossotchu/REIT-Portfolio-Tracker/
 
 ## 📱 Screenshots and Features
 
-### Portfolio Overview Dashboard
-![Portfolio Dashboard](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/main/screenshots/dashboard.png)
+### Portfolio Allocation
+![Portfolio Allocation](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/allocation.png)
 
 ### Dividend Income Analysis
-![Dividend Analysis](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/main/screenshots/dividends.png)
+![Dividend Analysis](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/dividend_income.PNG)
 
-### Sector Allocation
-![Sector Allocation](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/main/screenshots/sectors.png)
+### Portfolio Value Over Time
+![Portfolio Value Over Time](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/portfolio.png)
+
+### New Transaction & Transaction History
+![New Transaction](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/transaction.png)
+
+![Transaction History](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/transaction_history.png)
+
+### Net Asset Value Analysis*
+![Portfolio Value Over Time](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/nav.png)
+*Consensus NAV inputed manually
+
+### Split / Reverse Split
+![Portfolio Value Over Time](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/split.png)
 
 ## 🔧 Technical Details
 
@@ -129,7 +141,7 @@ Need more help? [Open an issue](https://github.com/akossotchu/REIT-Portfolio-Tra
 
 <div align="center">
 
-![Bitcoin](https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/64px-Bitcoin.svg.png)
+![Bitcoin](https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/64px-Bitcoin.png)
 
 If you find this application useful for managing your REIT investments, please consider making a Bitcoin donation to support continued development.
 
