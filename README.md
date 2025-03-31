@@ -94,6 +94,22 @@ See the [requirements.txt](https://github.com/akossotchu/REIT-Portfolio-Tracker/
 - **Stock Split Handling**: Properly adjusts holdings for stock splits and reverse splits
 - **After-tax Income for International Investors**: Calculates estimated monthly income with tax adjustments (default 30% for Brazilian investors, customizable)
 
+### PDF Report Generation
+![PDF Report](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/pdf_report.png)
+
+[Download Sample Report (PDF)](https://raw.githubusercontent.com/akossotchu/REIT-Portfolio-Tracker/refs/heads/screenshots/sample_report.pdf)
+
+The REIT Portfolio Tracker can generate comprehensive PDF reports that provide a detailed analysis of your investment portfolio. These professional-quality reports include:
+
+- Complete summary of portfolio value and performance
+- Detailed holdings breakdown with current prices and metrics
+- Allocation analysis with visual indicators to identify concentration risks
+- Dividend growth tracking with 3-year and 5-year CAGR analysis
+- NAV comparison showing premium/discount to consensus values
+- After-tax income calculations for international investors
+
+Perfect for record-keeping, sharing with advisors, or reviewing your investment strategy on a regular basis.
+
 ## 🛠️ Advanced Usage
 
 ### Compiling to Executable
