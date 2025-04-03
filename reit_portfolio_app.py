@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QTableWidget, QTableWidg
                             QAction, QMenu, QStatusBar, QFileDialog, QGraphicsDropShadowEffect)
 from PyQt5.QtCore import Qt, QDate, pyqtSignal, QThread, QUrl, QTimer, QSize, QRect, QPoint, QPropertyAnimation, QEasingCurve, QLocale
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QPalette, QDesktopServices, QLinearGradient, QPainter, QPen, QPainterPath
+from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QPalette, QDesktopServices, QLinearGradient, QPainter, QPen, QPainterPath
 from theme import Theme
 from split_dialog import SplitDialog
 from nav import NAVDialog
@@ -360,16 +361,7 @@ class StockDataFetcher(QThread):
                 current_price = stock_info['currentPrice']
             elif 'previousClose' in stock_info:
                 current_price = stock_info['previousClose']
-            
-            # Get dividend yield - ensure it's in percentage format (not decimal)
-            if 'dividendYield' in stock_info and stock_info['dividendYield'] is not None:
-                # Value comes as decimal from API, we need to convert to percentage
-                decimal_yield = stock_info['dividendYield']
-                if decimal_yield > 0 and decimal_yield < 1:  # If decimal (e.g., 0.0314 for 3.14%)
-                    dividend_yield = decimal_yield * 100
-                else:  # If already percentage
-                    dividend_yield = decimal_yield
-            
+                  
             # Get company name
             if 'shortName' in stock_info:
                 company_name = stock_info['shortName']
@@ -380,12 +372,20 @@ class StockDataFetcher(QThread):
             if 'dividendRate' in stock_info and stock_info['dividendRate'] is not None:
                 annual_dividend = stock_info['dividendRate']
             
+            # Sempre calcular o dividend yield a partir do annual_dividend e current_price
+            if annual_dividend is not None and current_price is not None and current_price > 0:
+                dividend_yield = (annual_dividend / current_price) * 100
+            else:
+                # Fallback para quando não temos annual_dividend
+                if 'dividendYield' in stock_info and stock_info['dividendYield'] is not None:
+                    decimal_yield = stock_info['dividendYield']
+                    if decimal_yield > 0 and decimal_yield < 1:
+                        dividend_yield = decimal_yield * 100
+                    else:
+                        dividend_yield = decimal_yield
+			
             if not self.running:
                 return
-            
-            # If can't get dividend yield directly, calculate from price and annual dividend rate
-            if (dividend_yield is None or dividend_yield == 0) and annual_dividend is not None and current_price is not None and current_price > 0:
-                dividend_yield = (annual_dividend / current_price) * 100
             
             # Buscar dados históricos de dividendos
             try:
@@ -672,13 +672,16 @@ class Position:
         # Yield on Cost = (Annual Dividend per Share / Average Cost per Share) * 100
         
         # If we have the annual dividend directly from the API
+        # Nos cálculos do yield on cost e annual_income, 
+        # usar sempre o annual_dividend se disponível, ou calcular pelo dividend_yield e preço
         if self.annual_dividend > 0:
             yield_on_cost = (self.annual_dividend / average_cost) * 100 if average_cost > 0 else 0
-        # Otherwise, use dividend yield (which is already a percentage) and current price
+            self.annual_income = self.annual_dividend * total_shares
         else:
-            # Calculate estimated annual dividend per share from yield
+            # Calcular annual_dividend a partir do yield
             estimated_annual_dividend = (self.dividend_yield / 100) * self.current_price
             yield_on_cost = (estimated_annual_dividend / average_cost) * 100 if average_cost > 0 else 0
+            self.annual_income = estimated_annual_dividend * total_shares
         
         # If yield on cost is very high (more than 100%), it's probably an error
         if yield_on_cost > 100:
@@ -688,15 +691,7 @@ class Position:
             print(f"  Annual Dividend: {self.annual_dividend}")
             print(f"  Current Price: {self.current_price}")
             print(f"  Average Cost: {average_cost}")
-        
-        # Calculate annual income
-        if self.annual_dividend > 0:
-            self.annual_income = self.annual_dividend * total_shares
-        else:
-            # Use dividend yield to estimate annual income
-            annual_dividend_per_share = (self.dividend_yield / 100) * self.current_price
-            self.annual_income = annual_dividend_per_share * total_shares
-        
+               
         # Calculate total position value
         position_value = self.current_price * total_shares
 		
@@ -1678,7 +1673,12 @@ class PortfolioApp(QMainWindow):
         position = self.portfolio.get_position(ticker)
         if position:
             position.current_price = price
-            position.dividend_yield = dividend_yield
+            # Atualizar o dividend_yield com base no preço atual e no annual_dividend
+            if annual_dividend > 0 and price > 0:
+                position.dividend_yield = (annual_dividend / price) * 100
+            else:
+                # Fallback para o valor fornecido pela API
+                position.dividend_yield = dividend_yield
             
             # Update company name if empty
             if not position.name and company_name:
@@ -1717,7 +1717,7 @@ class PortfolioApp(QMainWindow):
                     self.holdings_table.setItem(row, 3, value_item)
                     
                     # Update dividend yield cell
-                    div_yield_item = QTableWidgetItem(f"{dividend_yield:.2f}%")
+                    div_yield_item = QTableWidgetItem(f"{position.dividend_yield:.2f}%")
                     div_yield_item.setTextAlignment(Qt.AlignCenter)
                     self.holdings_table.setItem(row, 6, div_yield_item)
                     
@@ -1871,10 +1871,9 @@ class PortfolioApp(QMainWindow):
             pl_item.setForeground(QColor("red") if profit_loss < 0 else QColor("green"))
             self.holdings_table.setItem(row, 5, pl_item)
             
-            # Dividend Yield - já é porcentagem, exibir diretamente
-            # Garantir que estamos exibindo o valor correto (não multiplicado por 100)
+            # Dividend Yield - usando o valor já calculado na posição
             div_yield = position.dividend_yield
-            div_yield_item = QTableWidgetItem(f"{div_yield:.2f}%")
+            div_yield_item = QTableWidgetItem(f"{div_yield:.2f}%")    
             div_yield_item.setTextAlignment(Qt.AlignCenter)
             self.holdings_table.setItem(row, 6, div_yield_item)
             
