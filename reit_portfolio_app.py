@@ -11,8 +11,10 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QTableWidget, QTableWidg
                             QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QLabel, 
                             QLineEdit, QDialog, QDateEdit, QDoubleSpinBox, QSpinBox, 
                             QComboBox, QHeaderView, QMessageBox, QFrame, QToolBar, 
-                            QAction, QMenu, QStatusBar, QFileDialog, QGraphicsDropShadowEffect)
-from PyQt5.QtCore import Qt, QDate, pyqtSignal, QThread, QUrl, QTimer, QSize, QRect, QPoint, QPropertyAnimation, QEasingCurve, QLocale
+                            QAction, QMenu, QStatusBar, QFileDialog, QGraphicsDropShadowEffect,
+                            QSizePolicy, QMenuBar)
+from PyQt5.QtCore import (Qt, QDate, pyqtSignal, QThread, QUrl, QTimer, QSize, QRect, 
+                         QPoint, QPropertyAnimation, QEasingCurve, QLocale)
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QPalette, QDesktopServices, QLinearGradient, QPainter, QPen, QPainterPath
 from PyQt5.QtGui import QIcon, QPixmap, QFont, QColor, QPalette, QDesktopServices, QLinearGradient, QPainter, QPen, QPainterPath
 from theme import Theme
@@ -1175,20 +1177,7 @@ class PortfolioApp(QMainWindow):
                 self.holdings_table.setColumnHidden(12, True)  # Atualizar índice para 12
 	
     def get_usd_to_brl_rate(self):
-        """Obtém a cotação atual do dólar para real brasileiro"""
-        # Primeiro, tenta obter pela API
-        try:
-            response = requests.get("https://api.exchangerate-api.com/v4/latest/USD", timeout=5)
-            if response.status_code == 200:
-                data = response.json()
-                rate = data['rates'].get('BRL')
-                if rate and rate > 0:
-                    print(f"Cotação USD/BRL obtida via API: {rate}")
-                    return rate
-        except Exception as e:
-            print(f"Erro ao obter cotação do dólar via API: {str(e)}")
-    
-        # Se falhar, tenta usar yfinance como backup
+        """Obtém a cotação atual do dólar para real brasileiro usando apenas o yfinance"""
         try:
             # Ticker USDBRL=X representa a cotação do dólar em reais
             ticker = yf.Ticker("USDBRL=X")
@@ -1202,8 +1191,8 @@ class PortfolioApp(QMainWindow):
                     return rate
         except Exception as e:
             print(f"Erro ao obter cotação do dólar via yfinance: {str(e)}")
-    
-        # Valor padrão caso ambos os métodos falhem
+        
+        # Valor padrão caso falhe
         default_rate = 5.0
         print(f"Usando taxa padrão USD/BRL: {default_rate}")
         return default_rate
@@ -1211,6 +1200,9 @@ class PortfolioApp(QMainWindow):
     def init_ui(self):
         self.setWindowTitle("REIT Portfolio Tracker")
         self.setMinimumSize(1350, 800)
+        
+        # Remover a barra de título do sistema
+        self.setWindowFlags(Qt.FramelessWindowHint)
         
         # Set app-wide stylesheet
         self.setStyleSheet(f"""
@@ -1274,62 +1266,215 @@ class PortfolioApp(QMainWindow):
             }}
         """)
         
-        # Create modern toolbar
-        toolbar = QToolBar("Main Toolbar")
-        toolbar.setIconSize(QSize(18, 18))
-        toolbar.setMovable(False)
-        self.addToolBar(toolbar)
+        # Criar o layout principal
+        main_widget = QWidget()
+        main_layout = QVBoxLayout(main_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        self.setCentralWidget(main_widget)
         
-        # Create app title in toolbar
+        # Criar a barra de cabeçalho
+        header_widget = QWidget()
+        header_widget.setStyleSheet(f"background-color: {Theme.PRIMARY};")
+        header_layout = QVBoxLayout(header_widget)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(0)
+        
+        # Título e botões de controle
+        title_bar = QWidget()
+        title_bar.setStyleSheet(f"background-color: {Theme.PRIMARY};")
+        title_layout = QHBoxLayout(title_bar)
+        title_layout.setContentsMargins(20, 10, 20, 10)
+        
+        # Título
         title_label = QLabel("REIT Portfolio Tracker")
-        title_label.setStyleSheet(f"""
-            font-size: 18px;
-            font-weight: bold;
+        title_label.setStyleSheet("""
             color: white;
-            margin-left: 10px;
-            margin-right: 20px;
+            font-size: 22px;
+            font-weight: bold;
         """)
-        toolbar.addWidget(title_label)
-             
-        # Style the toolbar actions
-        toolbar.setStyleSheet(f"""
-            QToolBar {{
-                background-color: {Theme.PRIMARY};
-                border: none;
-                spacing: 10px;
-                padding: 10px;
-            }}
-            QToolButton {{
-                background-color: transparent;
+        title_layout.addWidget(title_label)
+        title_layout.addStretch()
+        
+        # Botões de controle
+        minimize_button = QPushButton("–")
+        minimize_button.setFixedSize(30, 30)
+        minimize_button.setStyleSheet("""
+            QPushButton {
                 color: white;
+                background-color: transparent;
                 border: none;
-                border-radius: 4px;
-                padding: 5px;
+                font-weight: bold;
+                font-size: 16px;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+                border-radius: 15px;
+            }
+        """)
+        minimize_button.clicked.connect(self.showMinimized)
+        
+        self.maximize_button = QPushButton("⧠")
+        self.maximize_button.setFixedSize(30, 30)
+        self.maximize_button.setStyleSheet("""
+            QPushButton {
+                color: white;
+                background-color: transparent;
+                border: none;
+                font-weight: bold;
+                font-size: 16px;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+                border-radius: 15px;
+            }
+        """)
+        self.maximize_button.clicked.connect(self.toggle_maximize)
+        
+        close_button = QPushButton("×")
+        close_button.setFixedSize(30, 30)
+        close_button.setStyleSheet("""
+            QPushButton {
+                color: white;
+                background-color: transparent;
+                border: none;
+                font-weight: bold;
+                font-size: 20px;
+            }
+            QPushButton:hover {
+                background-color: #E81123;
+                border-radius: 15px;
+            }
+        """)
+        close_button.clicked.connect(self.close)
+        
+        title_layout.addWidget(minimize_button)
+        title_layout.addWidget(self.maximize_button)
+        title_layout.addWidget(close_button)
+        
+        # Adicionar o título ao cabeçalho
+        header_layout.addWidget(title_bar)
+        
+        # Criar menubar personalizado
+        custom_menubar = QMenuBar()
+        custom_menubar.setStyleSheet(f"""
+            QMenuBar {{
+                background-color: {Theme.PRIMARY};
+                color: white;
+                padding: 2px;
             }}
-            QToolButton:hover {{
+            QMenuBar::item {{
+                background-color: transparent;
+                padding: 8px 12px;
+            }}
+            QMenuBar::item:selected {{
                 background-color: {Theme.SECONDARY};
             }}
         """)
         
+        # Adicionar a menubar ao cabeçalho
+        header_layout.addWidget(custom_menubar)
         
-        # Create main widget
-        main_widget = QWidget()
-        main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(20, 20, 20, 20)
-        main_layout.setSpacing(20)
-        main_widget.setLayout(main_layout)
-        self.setCentralWidget(main_widget)
+        # Adicionar cabeçalho ao layout principal
+        main_layout.addWidget(header_widget)
+        
+        # Configurar a menubar
+        file_menu = custom_menubar.addMenu("File")
+        new_action = QAction("New Portfolio", self)
+        new_action.triggered.connect(self.new_portfolio)
+        file_menu.addAction(new_action)
+        
+        load_action = QAction("Load Portfolio", self)
+        load_action.triggered.connect(self.load_portfolio_dialog)
+        file_menu.addAction(load_action)
+        
+        save_action = QAction("Save Portfolio", self)
+        save_action.triggered.connect(self.save_portfolio)
+        file_menu.addAction(save_action)
+        
+        file_menu.addSeparator()
+        
+        exit_action = QAction("Exit", self)
+        exit_action.triggered.connect(self.close)
+        file_menu.addAction(exit_action)
+        
+        transactions_menu = custom_menubar.addMenu("Transactions")
+        
+        buy_action = QAction("Buy", self)
+        buy_action.triggered.connect(lambda: self.add_transaction("BUY"))
+        transactions_menu.addAction(buy_action)
+        
+        sell_action = QAction("Sell", self)
+        sell_action.triggered.connect(lambda: self.add_transaction("SELL"))
+        transactions_menu.addAction(sell_action)
+        
+        no_cost_action = QAction("No-cost Acquisition", self)
+        no_cost_action.triggered.connect(lambda: self.add_transaction("NO_COST"))
+        transactions_menu.addAction(no_cost_action)
+        
+        transactions_menu.addSeparator()
+        split_action = QAction("Apply Stock Split", self)
+        split_action.triggered.connect(lambda: self.apply_stock_split())
+        transactions_menu.addAction(split_action)
+        
+        # Analytics menu
+        analytics_menu = custom_menubar.addMenu("Analytics")
+        
+        portfolio_analytics_action = QAction("Portfolio Performance", self)
+        portfolio_analytics_action.triggered.connect(self.show_portfolio_analytics)
+        analytics_menu.addAction(portfolio_analytics_action)
+        
+        transaction_history_action = QAction("Transaction History", self)
+        transaction_history_action.triggered.connect(self.show_transaction_history)
+        analytics_menu.addAction(transaction_history_action)
+        
+        nav_data_action = QAction("NAV Data", self)
+        nav_data_action.triggered.connect(self.show_nav_analysis)
+        analytics_menu.addAction(nav_data_action)
+        
+        # Refresh menu
+        refresh_menu = custom_menubar.addMenu("Actions")
+        
+        refresh_action = QAction("Refresh Data", self)
+        refresh_action.triggered.connect(self.update_portfolio_data)
+        refresh_menu.addAction(refresh_action)
+        
+        # Add separator
+        refresh_menu.addSeparator()
+        
+        # Add Report Export action
+        export_report_action = QAction("Export Report", self)
+        export_report_action.triggered.connect(self.export_portfolio_report)
+        refresh_menu.addAction(export_report_action)
+        
+        help_menu = custom_menubar.addMenu("Help")
+        about_action = QAction("About", self)
+        about_action.triggered.connect(self.show_about)
+        help_menu.addAction(about_action)
+        
+        # Donate menu
+        donate_menu = custom_menubar.addMenu("Donate")
+        donate_action = QAction("Support this Project", self)
+        donate_action.triggered.connect(self.show_donate_dialog)
+        donate_menu.addAction(donate_action)
+        
+        # Container para o conteúdo principal
+        content_container = QWidget()
+        content_layout = QVBoxLayout(content_container)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        content_layout.setSpacing(20)
+        main_layout.addWidget(content_container)
         
         # Criar duas linhas de cards em vez de uma única linha
         # Primeira linha de cards
         top_cards_layout = QHBoxLayout()
         top_cards_layout.setSpacing(15)
-        main_layout.addLayout(top_cards_layout)
+        content_layout.addLayout(top_cards_layout)
         
         # Segunda linha de cards
         bottom_cards_layout = QHBoxLayout()
         bottom_cards_layout.setSpacing(15)
-        main_layout.addLayout(bottom_cards_layout)
+        content_layout.addLayout(bottom_cards_layout)
         
         # Create modern summary cards
         self.portfolio_yield_card = self.create_modern_summary_card("PORTFOLIO YIELD", "4.31%", "yield")
@@ -1405,7 +1550,7 @@ class PortfolioApp(QMainWindow):
         self.actions_button.setMenu(actions_menu)
         search_actions_layout.addWidget(self.actions_button)
         
-        main_layout.addLayout(search_actions_layout)
+        content_layout.addLayout(search_actions_layout)
         
         # Create modern table
         self.holdings_table = QTableWidget()
@@ -1434,111 +1579,40 @@ class PortfolioApp(QMainWindow):
             }
         """)
         
-        main_layout.addWidget(self.holdings_table)
+        content_layout.addWidget(self.holdings_table)
         
         # Create status bar with modern styling
         self.statusBar = QStatusBar()
         self.setStatusBar(self.statusBar)
         self.statusBar.showMessage("Portfolio loaded")
         
-        # Set up menu bar with modern styling
-        menubar = self.menuBar()
-        menubar.setStyleSheet(f"""
-            QMenuBar {{
-                background-color: {Theme.PRIMARY};
-                color: white;
-            }}
-            QMenuBar::item {{
-                background-color: transparent;
-                padding: 8px 12px;
-            }}
-            QMenuBar::item:selected {{
-                background-color: {Theme.SECONDARY};
-            }}
-        """)
-        
-        file_menu = menubar.addMenu("File")
-        
-        new_action = QAction("New Portfolio", self)
-        new_action.triggered.connect(self.new_portfolio)
-        file_menu.addAction(new_action)
-        
-        load_action = QAction("Load Portfolio", self)
-        load_action.triggered.connect(self.load_portfolio_dialog)
-        file_menu.addAction(load_action)
-        
-        save_action = QAction("Save Portfolio", self)
-        save_action.triggered.connect(self.save_portfolio)
-        file_menu.addAction(save_action)
-        
-        file_menu.addSeparator()
-        
-        exit_action = QAction("Exit", self)
-        exit_action.triggered.connect(self.close)
-        file_menu.addAction(exit_action)
-        
-        transactions_menu = menubar.addMenu("Transactions")
-        
-        buy_action = QAction("Buy", self)
-        buy_action.triggered.connect(lambda: self.add_transaction("BUY"))
-        transactions_menu.addAction(buy_action)
-        
-        sell_action = QAction("Sell", self)
-        sell_action.triggered.connect(lambda: self.add_transaction("SELL"))
-        transactions_menu.addAction(sell_action)
-        
-        no_cost_action = QAction("No-cost Acquisition", self)
-        no_cost_action.triggered.connect(lambda: self.add_transaction("NO_COST"))
-        transactions_menu.addAction(no_cost_action)
-        
-        transactions_menu.addSeparator()
-        split_action = QAction("Apply Stock Split", self)
-        split_action.triggered.connect(lambda: self.apply_stock_split())
-        transactions_menu.addAction(split_action)
-		
-        # Analytics menu
-        analytics_menu = menubar.addMenu("Analytics")
-        
-        portfolio_analytics_action = QAction("Portfolio Performance", self)
-        portfolio_analytics_action.triggered.connect(self.show_portfolio_analytics)
-        analytics_menu.addAction(portfolio_analytics_action)
-        
-        transaction_history_action = QAction("Transaction History", self)
-        transaction_history_action.triggered.connect(self.show_transaction_history)
-        analytics_menu.addAction(transaction_history_action)
-		
-
-        nav_data_action = QAction("NAV Data", self)
-        nav_data_action.triggered.connect(self.show_nav_analysis)
-        analytics_menu.addAction(nav_data_action)
-        
-        # Refresh menu
-        refresh_menu = menubar.addMenu("Actions")
-		
-        refresh_action = QAction("Refresh Data", self)
-        refresh_action.triggered.connect(self.update_portfolio_data)
-        refresh_menu.addAction(refresh_action)
-		
-        # Add separator
-        refresh_menu.addSeparator()
-        
-        # Add Report Export action
-        export_report_action = QAction("Export Report", self)
-        export_report_action.triggered.connect(self.export_portfolio_report)
-        refresh_menu.addAction(export_report_action)
-		
-        help_menu = menubar.addMenu("Help")
-        about_action = QAction("About", self)
-        about_action.triggered.connect(self.show_about)
-        help_menu.addAction(about_action)
-		
-        # Donate menu
-        donate_menu = menubar.addMenu("Donate")
-        donate_action = QAction("Support this Project", self)
-        donate_action.triggered.connect(self.show_donate_dialog)
-        donate_menu.addAction(donate_action)
-		
         self.holdings_table.setColumnHidden(12, True)
+        
+        # Configurar arrastar a janela a partir do título
+        self.old_pos = None
+        title_bar.mousePressEvent = self.header_mouse_press_event
+        title_bar.mouseMoveEvent = self.header_mouse_move_event
+        title_bar.mouseReleaseEvent = self.header_mouse_release_event
+    
+    def header_mouse_press_event(self, event):
+        self.old_pos = event.globalPos()
+    
+    def header_mouse_move_event(self, event):
+        if self.old_pos:
+            delta = QPoint(event.globalPos() - self.old_pos)
+            self.move(self.x() + delta.x(), self.y() + delta.y())
+            self.old_pos = event.globalPos()
+    
+    def header_mouse_release_event(self, event):
+        self.old_pos = None
+    
+    def toggle_maximize(self):
+        if self.isMaximized():
+            self.showNormal()
+            self.maximize_button.setText("⧠")
+        else:
+            self.showMaximized()
+            self.maximize_button.setText("❐")
         
     def create_modern_summary_card(self, title, value, icon_type, clickable=False):
         card = ModernCard(clickable=clickable)
