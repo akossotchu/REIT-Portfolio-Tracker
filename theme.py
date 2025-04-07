@@ -2,7 +2,8 @@
 # Define theme colors for the app
 class Theme:
     PRIMARY = "#2E5090"       # Deep blue
-    SECONDARY = "#4A6DB5"     # Medium blue
+    SECONDARY = "#4A6DB5"     # Medium 
+    LIGHT_BLUE = "#7D9EE0"    # Light blue
     ACCENT = "#FF9A3C"        # Orange accent for highlights
     SUCCESS = "#4CAF50"       # Green for positive values
     DANGER = "#E53935"        # Red for negative values
