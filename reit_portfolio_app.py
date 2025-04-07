@@ -1275,6 +1275,7 @@ class PortfolioApp(QMainWindow):
         
         # Criar a barra de cabeçalho
         header_widget = QWidget()
+        header_widget.setObjectName("header_widget")
         header_widget.setStyleSheet(f"background-color: {Theme.PRIMARY};")
         header_layout = QVBoxLayout(header_widget)
         header_layout.setContentsMargins(0, 0, 0, 0)
@@ -1370,12 +1371,37 @@ class PortfolioApp(QMainWindow):
             QMenuBar::item:selected {{
                 background-color: {Theme.SECONDARY};
             }}
+            QMenu {{
+                background-color: {Theme.SECONDARY};
+                color: white;  
+                border: 1px solid {Theme.BORDER};
+            }}
+            QMenu::item {{
+                padding: 8px 24px;
+                color: white;  
+            }}
+            QMenu::item:selected {{
+                background-color: {Theme.LIGHT_BLUE};
+                color: white;  
+            }}
         """)
         
         # Adicionar a menubar ao cabeçalho
         header_layout.addWidget(custom_menubar)
         
-        # Adicionar cabeçalho ao layout principal
+        # Criar uma barra decorativa que se estende abaixo da menubar para a área de conteúdo
+        decorative_bar = QFrame(self)  # Note que adicionamos ao self (janela principal)
+        decorative_bar.setGeometry(0, header_widget.height(), self.width(), 0)  # Posição e tamanho
+        decorative_bar.setStyleSheet(f"""
+            background-color: {Theme.PRIMARY};
+            border: none;
+        """)
+        decorative_bar.lower()  # Coloca no plano de fundo para que fique atrás do conteúdo
+        
+        # Armazenar referência à barra para ajustar seu tamanho quando a janela for redimensionada
+        self.decorative_bar = decorative_bar
+		
+		# Adicionar cabeçalho ao layout principal
         main_layout.addWidget(header_widget)
         
         # Configurar a menubar
@@ -1594,6 +1620,38 @@ class PortfolioApp(QMainWindow):
         title_bar.mouseMoveEvent = self.header_mouse_move_event
         title_bar.mouseReleaseEvent = self.header_mouse_release_event
     
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        
+        # Criar um pintor para desenhar na janela
+        painter = QPainter(self)
+        
+        # Encontrar a altura do cabeçalho
+        header_height = 0
+        for child in self.findChildren(QWidget):
+            if child.objectName() == "header_widget":
+                header_height = child.height()
+                break
+        
+        # Desenhar a barra decorativa
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QColor(Theme.PRIMARY))
+        
+        # Desenhar retângulo que começa no final do cabeçalho e avança para a área de conteúdo
+        painter.drawRect(0, header_height, self.width(), 50)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        
+        # Atualizar a posição e largura da barra decorativa
+        if hasattr(self, 'decorative_bar'):
+            # Encontrar o header_widget para obter sua altura atual
+            for child in self.findChildren(QWidget):
+                if child.objectName() == "header_widget":
+                    header_height = child.height()
+                    self.decorative_bar.setGeometry(0, header_height, self.width(), 4)
+                    break
+	
     def header_mouse_press_event(self, event):
         self.old_pos = event.globalPos()
     
