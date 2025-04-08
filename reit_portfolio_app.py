@@ -1935,19 +1935,32 @@ class PortfolioApp(QMainWindow):
     
     def update_holdings_table(self):
         self.holdings_table.setRowCount(0)
-		
-		# Primeiro calcular o valor total do portfólio para referência
+        
+        # Primeiro calcular o valor total do portfólio para referência
         portfolio_metrics = self.portfolio.calculate_portfolio_metrics()
         total_portfolio_value = portfolio_metrics['total_value']
         
-        row = 0
+        # Criar uma lista de posições ordenadas por valor da posição (decrescente)
+        positions_list = []
         for ticker, position in self.portfolio.positions.items():
             metrics = position.calculate_metrics()
             shares = metrics['shares']
             
             if shares <= 0:
                 continue
-                
+            
+            position_value = metrics['position_value']
+            positions_list.append((ticker, position, position_value))
+        
+        # Ordenar a lista por valor da posição (decrescente)
+        positions_list.sort(key=lambda x: x[2], reverse=True)
+        
+        # Preencher a tabela com as posições ordenadas
+        row = 0
+        for ticker, position, _ in positions_list:
+            metrics = position.calculate_metrics()
+            shares = metrics['shares']
+            
             self.holdings_table.insertRow(row)
             
             # Ticker
@@ -2066,7 +2079,7 @@ class PortfolioApp(QMainWindow):
     
         # Format main value with profit/loss
         main_value = f"${metrics['total_value']:,.2f}"
-        pl_display = f" ({'+' if profit_loss > 0 else ''} ${abs(profit_loss):.2f})"
+        pl_display = f" ({'+' if profit_loss > 0 else '-'} ${abs(profit_loss):.2f})"
     
         # Create HTML structure with just the main value and profit/loss
         full_text = f"{main_value}<span style='font-size:14px; color:{profit_loss_color};'>{pl_display}</span>"
@@ -2081,7 +2094,9 @@ class PortfolioApp(QMainWindow):
         monthly_income_brl = monthly_income_usd * usd_brl_rate * 0.7
     
         # Update monthly income BRL card
-        self.monthly_income_brl_card.value_label.setText(f"R$ {monthly_income_brl:.2f}")
+        usd_brl_text = f"<span style='font-size:14px; color:{Theme.TEXT_SECONDARY};'> ($ 1 = R$ {usd_brl_rate:.2f})</span>"
+        self.monthly_income_brl_card.value_label.setText(f"R$ {monthly_income_brl:.2f}{usd_brl_text}")
+        self.monthly_income_brl_card.value_label.setTextFormat(Qt.RichText)
         
         # Atualizar novos cards de crescimento de dividendos
         self.dg_3y_card.value_label.setText(f"{metrics['weighted_dg_3y']:.2f}%")
