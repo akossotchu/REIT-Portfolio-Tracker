@@ -243,6 +243,10 @@ class PortfolioReportGenerator:
         if sections.get('dividend', True):
             self.add_dividend_growth_analysis(elements)
         
+        # Add sector-based dividend growth analysis
+        if sections.get('dividend', True):
+            self.add_sector_dividend_growth_analysis(elements)
+		
         # Adicionar análise de NAV
         if sections.get('nav', True):
             self.add_nav_analysis(elements)
@@ -1025,6 +1029,323 @@ class PortfolioReportGenerator:
         
         elements.append(Paragraph(legend_text, self.caption_style))
         
+    def add_sector_dividend_growth_analysis(self, elements):
+        """Adds a sector-based dividend growth analysis table to the report"""
+        import requests
+        from bs4 import BeautifulSoup
+        import pandas as pd
+        import yfinance as yf
+        
+        # Add page break before starting this section
+        elements.append(PageBreak())
+        
+        # Create subheading for the section
+        elements.append(Paragraph("Sector-Based Dividend Growth Analysis", self.heading3_style))
+        
+        # Introduction text
+        elements.append(Paragraph(
+            "This analysis shows the average dividend growth rates grouped by REIT sectors. "
+            "This can help identify which sectors are delivering the strongest dividend growth "
+            "and may warrant increased allocation.",
+            self.normal_style
+        ))
+        elements.append(Spacer(1, 8*mm))
+        
+        # Function to get sector information from alreits.com
+        def get_sector_from_alreits(ticker):
+            try:
+                url = f"https://alreits.com/reits/{ticker}"
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+                }
+                response = requests.get(url, headers=headers, timeout=5)
+                
+                if response.status_code == 200:
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    # Look for the sector information in the specified class
+                    sector_elements = soup.find_all(class_="MuiTypography-root MuiTypography-body1 LabeledIcon__Label-sc-1l6onqv-2 hHdysU css-99u0rr")
+                    
+                    # If we found potential sector elements, check each one
+                    for element in sector_elements:
+                        # The sector typically appears after a label like "Sector:" or similar
+                        # We'll take the first valid sector we find
+                        if element.text and len(element.text) > 0:
+                            return element.text
+                
+                # If we get here, we couldn't find the sector
+                return None
+                
+            except Exception as e:
+                print(f"Error getting sector for {ticker} from alreits.com: {e}")
+                return None
+        
+        # Function to get sector information from yfinance as fallback
+        def get_sector_from_yfinance(ticker):
+            try:
+                stock = yf.Ticker(ticker)
+                info = stock.info
+                sector = info.get('sector', 'Unknown')
+                # Some REITs may be classified under "Real Estate" but have a more specific industry
+                if sector == "Real Estate" and 'industry' in info:
+                    return info.get('industry', 'Unknown')
+                return sector
+            except Exception as e:
+                print(f"Error getting sector for {ticker} from yfinance: {e}")
+                return "Unknown"
+        
+        # Collect position data with sectors
+        position_data = []
+        
+        for ticker, position in self.portfolio.positions.items():
+            # Skip positions with no shares
+            metrics = position.calculate_metrics()
+            if metrics["shares"] <= 0:
+                continue
+                
+            # Skip positions without dividend growth data
+            if position.dividend_growth_3y == 0 and position.dividend_growth_5y == 0:
+                continue
+            
+            # Get the sector - try alreits.com first, then fallback to yfinance
+            sector = get_sector_from_alreits(ticker)
+            if not sector or sector == "Unknown":
+                sector = get_sector_from_yfinance(ticker)
+            
+            # If we still don't have a sector, mark as Unknown
+            if not sector:
+                sector = "Unknown"
+            
+            position_data.append({
+                "ticker": ticker,
+                "sector": sector,
+                "dividend_growth_3y": position.dividend_growth_3y,
+                "dividend_growth_5y": position.dividend_growth_5y,
+                "annual_income": metrics["annual_income"],
+                # Calculate position value for weighting
+                "position_value": metrics["position_value"]
+            })
+        
+        # If no valid data, show a message and return
+        if not position_data:
+            elements.append(Paragraph(
+                "No dividend growth data available for sector-based analysis.",
+                self.normal_style
+            ))
+            return
+        
+        # Convert to DataFrame for easier grouping operations
+        df = pd.DataFrame(position_data)
+        
+        # Group by sector and calculate weighted averages
+        grouped_data = []
+        for sector, group in df.groupby("sector"):
+            total_value = group["position_value"].sum()
+            
+            # Calculate weighted 3-year and 5-year CAGR
+            weighted_dg_3y = 0
+            weighted_dg_5y = 0
+            
+            # Only include positions with valid dividend growth data in calculation
+            valid_3y = group[group["dividend_growth_3y"] > 0]
+            if not valid_3y.empty:
+                total_3y_value = valid_3y["position_value"].sum()
+                weighted_dg_3y = sum(row["dividend_growth_3y"] * row["position_value"] / total_3y_value 
+                                    for _, row in valid_3y.iterrows())
+            
+            valid_5y = group[group["dividend_growth_5y"] > 0]
+            if not valid_5y.empty:
+                total_5y_value = valid_5y["position_value"].sum()
+                weighted_dg_5y = sum(row["dividend_growth_5y"] * row["position_value"] / total_5y_value 
+                                    for _, row in valid_5y.iterrows())
+            
+            # Calculate total income for the sector
+            total_annual_income = group["annual_income"].sum()
+            
+            # Count REITs in this sector
+            reit_count = len(group)
+            
+            grouped_data.append({
+                "sector": sector,
+                "reit_count": reit_count,
+                "weighted_dg_3y": weighted_dg_3y,
+                "weighted_dg_5y": weighted_dg_5y,
+                "total_annual_income": total_annual_income,
+                "total_value": total_value
+            })
+        
+        # Sort by 5-year growth rate (highest first)
+        grouped_data.sort(key=lambda x: x["weighted_dg_5y"], reverse=True)
+        
+        # Create the table for sector analysis
+        headers = ["Sector", "REITs", "3Y CAGR", "5Y CAGR", "Annual Income", "% of Portfolio"]
+        
+        # Calculate total portfolio value for percentage calculation
+        total_portfolio_value = sum(item["total_value"] for item in grouped_data)
+        
+        # Create table data
+        table_data = [headers]
+        
+        # Add data rows
+        for data in grouped_data:
+            sector = data["sector"]
+            reit_count = data["reit_count"]
+            weighted_dg_3y = data["weighted_dg_3y"]
+            weighted_dg_5y = data["weighted_dg_5y"]
+            total_annual_income = data["total_annual_income"]
+            portfolio_percentage = (data["total_value"] / total_portfolio_value * 100) if total_portfolio_value > 0 else 0
+            
+            row = [
+                sector,
+                str(reit_count),
+                f"{weighted_dg_3y:.2f}%" if weighted_dg_3y > 0 else "N/A",
+                f"{weighted_dg_5y:.2f}%" if weighted_dg_5y > 0 else "N/A",
+                f"${total_annual_income:.2f}",
+                f"{portfolio_percentage:.2f}%"
+            ]
+            
+            table_data.append(row)
+        
+        # Add a total row
+        total_reits = sum(data["reit_count"] for data in grouped_data)
+        total_income = sum(data["total_annual_income"] for data in grouped_data)
+        
+        # Calculate portfolio-wide weighted averages for display in total row
+        portfolio_dg_3y = sum(data["weighted_dg_3y"] * data["total_value"] for data in grouped_data 
+                             if data["weighted_dg_3y"] > 0) / sum(data["total_value"] for data in grouped_data 
+                                                                 if data["weighted_dg_3y"] > 0)
+        
+        portfolio_dg_5y = sum(data["weighted_dg_5y"] * data["total_value"] for data in grouped_data 
+                             if data["weighted_dg_5y"] > 0) / sum(data["total_value"] for data in grouped_data 
+                                                                 if data["weighted_dg_5y"] > 0)
+        
+        total_row = [
+            "TOTAL",
+            str(total_reits),
+            f"{portfolio_dg_3y:.2f}%",
+            f"{portfolio_dg_5y:.2f}%",
+            f"${total_income:.2f}",
+            "100.00%"
+        ]
+        
+        table_data.append(total_row)
+        
+        # Create the table with appropriate column widths
+        available_width = 160*mm
+        col_widths = [
+            40*mm,      # Sector
+            15*mm,      # REITs Count
+            25*mm,      # 3Y CAGR
+            25*mm,      # 5Y CAGR
+            30*mm,      # Annual Income
+            25*mm       # % of Portfolio
+        ]
+        
+        sectors_table = Table(table_data, colWidths=col_widths)
+        
+        # Style the table
+        table_style = [
+            # Header style
+            ('BACKGROUND', (0, 0), (-1, 0), self.brand_primary),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+            ('TOPPADDING', (0, 0), (-1, 0), 6),
+            
+            # Grid and alignment
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ALIGN', (0, 1), (0, -1), 'LEFT'),      # Align sector names to left
+            ('ALIGN', (1, 1), (1, -1), 'CENTER'),    # Align REIT count to center
+            ('ALIGN', (2, 1), (5, -1), 'RIGHT'),     # Align numeric columns to right
+            
+            # Total row style
+            ('BACKGROUND', (0, -1), (-1, -1), self.brand_primary),
+            ('TEXTCOLOR', (0, -1), (-1, -1), colors.whitesmoke),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+        ]
+        
+        # Add alternating row colors for better readability
+        for i in range(1, len(table_data) - 1):  # Skip header and total row
+            if i % 2 == 0:
+                table_style.append(('BACKGROUND', (0, i), (-1, i), self.brand_light_bg))
+        
+        # Color code growth rates
+        for i in range(1, len(table_data) - 1):  # Skip header and total row
+            # 3-year CAGR
+            if table_data[i][2] != "N/A":
+                try:
+                    cagr_3y = float(table_data[i][2].strip("%"))
+                    color = self._get_growth_color(cagr_3y)
+                    table_style.append(('TEXTCOLOR', (2, i), (2, i), color))
+                    if cagr_3y > 8:  # Exceptional growth
+                        table_style.append(('FONTNAME', (2, i), (2, i), 'Helvetica-Bold'))
+                except:
+                    pass
+            
+            # 5-year CAGR
+            if table_data[i][3] != "N/A":
+                try:
+                    cagr_5y = float(table_data[i][3].strip("%"))
+                    color = self._get_growth_color(cagr_5y)
+                    table_style.append(('TEXTCOLOR', (3, i), (3, i), color))
+                    if cagr_5y > 8:  # Exceptional growth
+                        table_style.append(('FONTNAME', (3, i), (3, i), 'Helvetica-Bold'))
+                except:
+                    pass
+        
+        sectors_table.setStyle(TableStyle(table_style))
+        elements.append(sectors_table)
+        
+        # Add explanation and insights
+        elements.append(Spacer(1, 5*mm))
+        
+        # Find top and bottom performing sectors
+        top_sectors = sorted([data for data in grouped_data if data["weighted_dg_5y"] > 0], 
+                            key=lambda x: x["weighted_dg_5y"], reverse=True)
+        
+        bottom_sectors = sorted([data for data in grouped_data if data["weighted_dg_5y"] > 0], 
+                               key=lambda x: x["weighted_dg_5y"])
+        
+        insights_text = ""
+        if top_sectors:
+            top_sector = top_sectors[0]["sector"]
+            top_growth = top_sectors[0]["weighted_dg_5y"]
+            insights_text += (
+                f"<b>Top Performing Sector:</b> The {top_sector} sector shows the strongest "
+                f"dividend growth at {top_growth:.2f}% over 5 years. "
+            )
+            
+            if len(top_sectors) > 1:
+                second_sector = top_sectors[1]["sector"]
+                second_growth = top_sectors[1]["weighted_dg_5y"]
+                insights_text += (
+                    f"This is followed by {second_sector} at {second_growth:.2f}%. "
+                )
+        
+        if bottom_sectors:
+            bottom_sector = bottom_sectors[0]["sector"]
+            bottom_growth = bottom_sectors[0]["weighted_dg_5y"]
+            insights_text += (
+                f"<b>Lowest Performing Sector:</b> The {bottom_sector} sector shows the weakest "
+                f"dividend growth at {bottom_growth:.2f}% over 5 years. "
+            )
+        
+        if insights_text:
+            insights_text += (
+                "Consider these sector performance trends when rebalancing your portfolio "
+                "or making new investments."
+            )
+            elements.append(Paragraph(insights_text, self.normal_style))
+        
+        # Add note about data sourcing
+        elements.append(Spacer(1, 5*mm))
+        note_text = (
+            "<i>Note: Sector classification data is sourced from alreits.com and yfinance. "
+            "Weighted averages are calculated based on the position value within each sector.</i>"
+        )
+        elements.append(Paragraph(note_text, self.caption_style))
+
     # Métodos auxiliares para análise de crescimento de dividendos
     def _get_growth_color(self, growth_rate):
         """Retorna a cor apropriada com base na taxa de crescimento"""
